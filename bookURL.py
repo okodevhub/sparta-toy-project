@@ -7,7 +7,7 @@ data = requests.get('https://movie.naver.com/movie/bi/mi/running.naver?code=1823
 soup = BeautifulSoup(data.text, 'html.parser')
 
 
-## 상영관 장소/ 몇관 가져오기
+## 상영관 장소/ 몇관/ url 가져오기
 bookingListBox = soup.select_one('#runningLayer')
 lis = bookingListBox.select('li')
 for li in lis:
