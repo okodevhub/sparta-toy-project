@@ -1,0 +1,136 @@
+@import url('https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap');
+body{
+    background-color : var(--base-color);
+}
+/*font-family: 'Gowun Dodum', sans-serif;*/
+/*모든 주석은 관련된 내용 상위에 작성되었음*/
+/*root는 css에서 변수 지정한 뒤에 지정한 색을 넣을 때 씀. 한 색을 여러번 쓸 데가 있을 것 같아서 지정해뒀습니다*/
+:root{
+    --base-color : #9999FF;
+    --cgv : #ff3333;
+    --mega : #7f00ff;
+    --Lotte : #ff8000;
+}
+/*글꼴*/
+* {
+    font-family: 'Gowun Dodum', sans-serif;
+}
+/*이미지 속성 관련*/
+.img-thumbnail{
+    height:auto;
+
+}
+/*영화 정보의 전체 div 속성. width는 1000px 고정했고 그림자 들어갔음*/
+.info-card{
+    height: auto;
+    width: 1000px;
+    background-color : #ffffff;
+    margin : 100px auto 20px auto;
+    box-shadow: 5px 5px 2px darkgray;
+    border-radius: 5px;
+}
+/* 이미지 들어가는 div에 대한 설정. width 300px, height는 다른 칸에 맞추어 100% 근데 깨질수도 있음 특이한 포스터면..?*/
+.movie-image{
+    background-color : #ffffff;
+    float:left;
+    width:300px;
+    height:100%;
+}
+/*패딩 줘서 깔끔하게 함*/
+.card-body_desc1{
+    padding: 10px 10px 10px 10px;
+    width: 400px;
+    height : 180px;
+}
+
+.card-body_desc2{
+    padding: 10px 10px 10px 10px;
+    width: 1400px;
+    height : 180px;
+}
+/*size는 320이고 3개 존재하니 960. 나머지 40은 20씩 빈 공간만들어서 띄어줌*/
+.table-size {
+    width : 320px;
+
+}
+/*표 띄어주는 용*/
+.table-space {
+    margin : auto;
+}
+/* CGV,Mega,Lotte 칸(표 위의 상자)에 대한 style*/
+.company-name_CGV {
+    border: 1px solid var(--cgv);
+    background-color: var(--cgv);
+    height:40px;
+    margin: 10px 0px 2px 0px;
+    font-size : 25px;
+    font-weight: bold;
+    color: white;
+    text-align: center;
+    box-shadow: 3px 5px 2px darkgray;
+}
+.company-name_Mega {
+    border: 1px solid var(--mega);
+    background-color: var(--mega);
+    height:40px;
+    margin: 10px 0px 2px 0px;
+    font-size : 25px;
+    font-weight: bold;
+    color: white;
+    text-align: center;
+    box-shadow: 3px 5px 2px darkgray;
+}
+.company-name_Lotte {
+    border: 1px solid var(--Lotte);
+    background-color: var(--Lotte);
+    height:40px;
+    margin: 10px 0px 2px 0px;
+    font-size : 25px;
+    font-weight: bold;
+    color: white;
+    text-align: center;
+    box-shadow: 3px 5px 2px darkgray;
+}
+
+
+/* 칸 나누는 용도의 style 모아놓음*/
+.empty-space01 {
+    width: 20px;
+}
+.empty-space02 {
+    /*border: 1px solid black;*/
+    width: 300px;
+    height: 5%;
+}
+.empty-space03{
+    width : 300px;
+    height: 10%;
+}
+
+
+/* 표 그림자*/
+.table-setting {
+    box-shadow: 3px 0px 2px darkgray;
+}
+/*표 글자 가운데 정렬*/
+.table-rows {
+    text-align: center;
+    vertical-align: center;
+}
+/*desc1의 기타 정보 구분선*/
+.info-line {
+    height: 15px;
+}
+/*줄거리 관련 css*/
+.story{
+    overflow: scroll;
+    -ms-overflow-style: none;
+    height: 85%;
+}
+/*줄거리가 너무 많을 경우 스크롤을 하게 하고, 미관상 좋으라고 스크롤바 안보이게 함*/
+.story::-webkit-scrollbar {
+    display: none;
+}
+.story-title{
+    font-weight: bold;
+}
