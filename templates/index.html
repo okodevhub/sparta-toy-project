@@ -30,9 +30,75 @@
       rel="stylesheet"
     />
 
+    <script>
+      $(document).ready(function () {
+        showRegionRoots();
+        showRegionSubs();
+        $("select[id=regionRoot]").on("change", function () {
+          showRegionSubs($(this).val());
+        });
+      });
+
+      function showRegionRoots() {
+        $.ajax({
+          type: "GET",
+          url: "/regionRoots",
+          data: {},
+          success: function (response) {
+            let regionRoots = response["regionRoots"];
+            for (let i = 0; i < regionRoots.length; i++) {
+              let regionRootCode = regionRoots[i]["regionRootCode"];
+              let regionRootName = regionRoots[i]["regionRootName"];
+              let temp_html = `<option value="${regionRootCode}">${regionRootName}</option>`;
+              $("#regionRoot").append(temp_html);
+            }
+          },
+        });
+      }
+
+      function showRegionSubs(regionRootCode) {
+        $("#regionSub").empty();
+        if (!regionRootCode) {
+          regionRootCode = 1;
+        }
+        $.ajax({
+          type: "GET",
+          url: `/regionRoots/${regionRootCode}`,
+          data: {},
+          success: function (response) {
+            let regionRoot = response["regionRoot"];
+            let regionSubs = regionRoot["regionSubs"];
+
+            for (let i = 0; i < regionSubs.length; i++) {
+              let regionSubCode = regionSubs[i]["regionSubCode"];
+              let regionSubName = regionSubs[i]["regionSubName"];
+              let temp_html = `<option value="${regionSubCode}">${regionSubName}</option>`;
+              $("#regionSub").append(temp_html);
+            }
+          },
+        });
+      }
+
+      function showValues() {
+        console.log(
+          $("select[id=regionRoot]").val(),
+          $("select[id=regionSub]").val()
+        );
+      }
+    </script>
+
     <title>Document</title>
   </head>
   <body>
-    <h1>서버를 만들었다!</h1>
+    <div class="input-group mb-3">
+      <div class="input-group-prepend">
+        <label class="input-group-text" for="regionRoot">지역</label>
+      </div>
+      <select class="custom-select" id="regionRoot"></select>
+      <select class="custom-select" id="regionSub"></select>
+      <button onclick="showValues()" type="button" class="btn btn-primary">
+        확인
+      </button>
+    </div>
   </body>
 </html>
