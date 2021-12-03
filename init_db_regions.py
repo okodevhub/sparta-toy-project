@@ -9,7 +9,6 @@ regions = [
         "regionRootCode": "1",
         "regionRootName": "서울",
         "regionSubs": [
-            {"regionSubCode": "0", "regionSubName": "전체"},
             {"regionSubCode": "53", "regionSubName": "강남구/서초구"},
             {"regionSubCode": "54", "regionSubName": "강동구/송파구/광진구"},
             {"regionSubCode": "55", "regionSubName": "강북구/노원구"},
@@ -34,7 +33,6 @@ regions = [
         "regionRootCode": "3",
         "regionRootName": "경기",
         "regionSubs": [
-            {"regionSubCode": "0", "regionSubName": "전체"},
             {"regionSubCode": "66", "regionSubName": "수원/화성"},
             {"regionSubCode": "67", "regionSubName": "시흥/안산"},
             {"regionSubCode": "70", "regionSubName": "고양/파주"},
@@ -79,7 +77,6 @@ regions = [
         "regionRootCode": "9",
         "regionRootName": "부산",
         "regionSubs": [
-            {"regionSubCode": "0", "regionSubName": "전체"},
             {"regionSubCode": "26", "regionSubName": "금정구"},
             {"regionSubCode": "27", "regionSubName": "남구"},
             {"regionSubCode": "28", "regionSubName": "동래구"},
@@ -103,7 +100,6 @@ regions = [
         "regionRootCode": "11",
         "regionRootName": "경상",
         "regionSubs": [
-            {"regionSubCode": "0", "regionSubName": "전체"},
             {"regionSubCode": "35", "regionSubName": "거제/통영"},
             {"regionSubCode": "36", "regionSubName": "거창"},
             {"regionSubCode": "37", "regionSubName": "김해/양산"},
@@ -123,6 +119,8 @@ regions = [
         "regionSubs": [{"regionSubCode": "52", "regionSubName": "제주"}],
     },
 ]
+
+db.regions.delete_many({})
 
 for region in regions:
     db.regions.insert_one(region)
