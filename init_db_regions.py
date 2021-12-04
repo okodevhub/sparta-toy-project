@@ -124,3 +124,5 @@ db.regions.delete_many({})
 
 for region in regions:
     db.regions.insert_one(region)
+
+db.regions.update_many({}, {"$currentDate": {"created_dt": {"$type": "date"}}})
