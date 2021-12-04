@@ -42,13 +42,13 @@
       function showRegionRoots() {
         $.ajax({
           type: "GET",
-          url: "/regionRoots",
+          url: "/regions",
           data: {},
           success: function (response) {
-            let regionRoots = response["regionRoots"];
-            for (let i = 0; i < regionRoots.length; i++) {
-              let regionRootCode = regionRoots[i]["regionRootCode"];
-              let regionRootName = regionRoots[i]["regionRootName"];
+            let regions = response["regions"];
+            for (let i = 0; i < regions.length; i++) {
+              let regionRootCode = regions[i]["regionRootCode"];
+              let regionRootName = regions[i]["regionRootName"];
               let temp_html = `<option value="${regionRootCode}">${regionRootName}</option>`;
               $("#regionRoot").append(temp_html);
             }
@@ -63,11 +63,11 @@
         }
         $.ajax({
           type: "GET",
-          url: `/regionRoots/${regionRootCode}`,
+          url: `/regions/${regionRootCode}`,
           data: {},
           success: function (response) {
-            let regionRoot = response["regionRoot"];
-            let regionSubs = regionRoot["regionSubs"];
+            let region = response["region"];
+            let regionSubs = region["regionSubs"];
 
             for (let i = 0; i < regionSubs.length; i++) {
               let regionSubCode = regionSubs[i]["regionSubCode"];
