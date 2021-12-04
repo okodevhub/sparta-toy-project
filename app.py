@@ -15,6 +15,12 @@ def test_get():
     return jsonify({"result": "success", "msg": "이 요청은 GET!"})
 
 
+@app.route("/top20movies", methods=["GET"])
+def top20movies():
+    top20movies = list(db.top20movies.find({}, {'_id': False}))
+    return jsonify({"movies": top20movies})
+
+
 @app.route("/test", methods=["POST"])
 def test_post():
     title_receive = request.form["title_give"]

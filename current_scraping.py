@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 
 from pymongo import MongoClient # 파이몽고를 쓰겠습니다.
 client = MongoClient('localhost', 27017) #내 컴퓨터에 돌아가고 있는 몽고디비에 접속할 겁니다.
-db = client.currentmovies
+db = client.dbspartatoyprojcet
 
 headers = {'User-Agent' : 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36'}
 data = requests.get('https://movie.naver.com/movie/running/current.naver',headers=headers)
@@ -62,9 +62,9 @@ top20movies = list( db.currentmovies.find({},{'_id':False}).sort('reservation', 
 for i in top20movies :
     doc = {
         'title': i['title'],
-        'image': i['image'],
+        'image_url': i['image'],
         'reservation': i['reservation'],
-        'rank': top20movies.index(i)+1
+        'ranking': top20movies.index(i)+1
     }
 
     db.top20movies.insert_one(doc)
