@@ -16,8 +16,11 @@ lis = soup.select('#content > div.article > div:nth-child(1) > div.lst_wrap > ul
 
 db.currentmovies.delete_many({})
 
+#content > div.article > div:nth-child(1) > div.lst_wrap > ul > li:nth-child(1) >
+
 for li in lis :
     title = li.select_one('dl > dt > a').text  # 제목
+    movie_url = li.select_one('dl > dt > a')['href']  # 영화 주소
     # age = li.select_one('dl > dt > span').text  # 관람가
     image_url = li.select_one('div > a > img')['src']  # 이미지 주소
     # grade = li.select_one('dl > dd.star > dl.info_star > dd > div > a > span.num').text  # 평점
@@ -50,8 +53,9 @@ for li in lis :
 
     doc = {
         'title': title ,
+        'movie_url': movie_url,
         'image': image_url ,
-        'reservation': reservation ,
+        'reservation': reservation
     }
     db.currentmovies.insert_one(doc)
 
@@ -62,6 +66,7 @@ top20movies = list( db.currentmovies.find({},{'_id':False}).sort('reservation', 
 for i in top20movies :
     doc = {
         'title': i['title'],
+        'movie_url': i['movie_url'],
         'image_url': i['image'],
         'reservation': i['reservation'],
         'ranking': top20movies.index(i)+1
