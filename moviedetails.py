@@ -60,6 +60,8 @@ for i in code:
 
   # 줄거리 : 전체가 아니라 부분만 추출되네요...
   story = soup.select_one("#content > div.article > div.section_group.section_group_frst > div:nth-of-type(1) > div > div.story_area p.con_tx").text
+  
+  # db저장
   doc = {'code':i,
          'title':title, 
          'title_en':title_en, 
