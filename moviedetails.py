@@ -77,5 +77,3 @@ for i in code:
          'audience_accum':audience_accum,
          'story':story}
   db.MovieDetails.insert_one(doc)
-  
-
