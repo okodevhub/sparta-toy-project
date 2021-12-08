@@ -3,8 +3,8 @@ import crawling_data as crawling_data
 from pymongo import MongoClient
 from datetime import datetime
 
-# client = MongoClient("localhost", 27017)
-client = MongoClient("mongodb://test:test@localhost", 27017)
+client = MongoClient("localhost", 27017)
+# client = MongoClient("mongodb://test:test@localhost", 27017)
 db = client.dbmoviemoa
 
 # TOP20영화 데이터 DB에 담기

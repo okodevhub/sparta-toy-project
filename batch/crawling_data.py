@@ -10,8 +10,8 @@ headers = {
 }
 
 # Chrome Driver 위치 (AWS로 옮길 경우 수정 필요)
-# chrome_driver_dir = "/opt/homebrew/bin/chromedriver"
-chrome_driver_dir = "/home/ubuntu/chromedriver"
+chrome_driver_dir = "/opt/homebrew/bin/chromedriver"
+# chrome_driver_dir = "/home/ubuntu/chromedriver"
 
 # 현재상영영화중 예매율20위 영화 가져오기
 def get_top20_movies():
@@ -25,6 +25,8 @@ def get_top20_movies():
         "#content > div.article > div:nth-child(1) > div.lst_wrap > ul > li"
     )
 
+    current_movies = []
+
     for movie in movies:
         # 영화코드
         code = movie.select_one("dl > dt > a")["href"].split("=")[-1]
@@ -33,26 +35,30 @@ def get_top20_movies():
         # 포스터URl
         image_url = movie.select_one("div > a > img")["src"].split("?")[0]
         # 예매율
-        reservation = float(movie.select_one("dl > dd.star > dl.info_exp > dd > div > span.num").text)
+        reservation = float(
+            movie.select_one("dl > dd.star > dl.info_exp > dd > div > span.num").text
+        )
 
         doc = {
-            'title': title,
-            'code': code,
-            'image': image_url,
-            'reservation': reservation
+            "title": title,
+            "code": code,
+            "image": image_url,
+            "reservation": reservation,
         }
         current_movies.append(doc)
 
-    top20movies = sorted(current_movies, key=(lambda x: x['reservation']), reverse=True)[: 20]
+    top20movies = sorted(
+        current_movies, key=(lambda x: x["reservation"]), reverse=True
+    )[:20]
     top20_movies = []
 
     for i in top20movies:
         doc = {
-            'title': i['title'],
-            'code': i['code'],
-            'image_url': i['image'],
-            'advanced_rate': i['reservation'],
-            'ranking': top20movies.index(i) + 1
+            "title": i["title"],
+            "code": i["code"],
+            "image_url": i["image"],
+            "advanced_rate": i["reservation"],
+            "ranking": top20movies.index(i) + 1,
         }
         top20_movies.append(doc)
     return top20_movies
@@ -200,6 +206,7 @@ def get_movie_detail(code):
         "prdt_year": prdt_year,
         "audience_point": audience_point,
         "critic_point": critic_point,
+        "netizen_point": netizen_point,
         "genre": genre,
         "nation": nation,
         "running_time": running_time,
