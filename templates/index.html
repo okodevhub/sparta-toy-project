@@ -16,6 +16,129 @@
       crossorigin="anonymous"
     />
 
+    <!-- 구글폰트 -->
+    <link
+      href="https://fonts.googleapis.com/css?family=Stylish&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      body {
+        width: 80%;
+        margin: 0 auto;
+      }
+      #poster {
+        display: flex;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        gap: 10px;
+      }
+      #movie_info {
+        display: flex;
+      }
+      #carouselExampleSlidesOnly {
+        height: 45vh;
+      }
+      .carousel-item {
+        background-color: black;
+        padding: 10px;
+      }
+      .carousel-item .row {
+        display: flex;
+        justify-content: space-around;
+        height: 100%;
+        width: 85%;
+        margin: 0 auto;
+        color: white;
+      }
+      .poster-no,
+      .poster-title {
+        display: flex;
+        justify-content: center;
+      }
+      #timetables {
+        display: flex;
+        justify-content: space-between;
+      }
+    </style>
+
+    <title>moviemoa - sample</title>
+  </head>
+  <body>
+    <div
+      id="carouselExampleIndicators"
+      class="carousel slide"
+      data-ride="carousel"
+    >
+      <ol class="carousel-indicators">
+        <li
+          data-target="#carouselExampleIndicators"
+          data-slide-to="0"
+          class="active"
+        ></li>
+        <li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
+        <li data-target="#carouselExampleIndicators" data-slide-to="2"></li>
+        <li data-target="#carouselExampleIndicators" data-slide-to="3"></li>
+      </ol>
+      <div class="carousel-inner" id="poster-inner">
+        <div class="carousel-item active" id="poster-pg1"></div>
+        <div class="carousel-item" id="poster-pg2"></div>
+        <div class="carousel-item" id="poster-pg3"></div>
+        <div class="carousel-item" id="poster-pg4"></div>
+        <a
+          class="carousel-control-prev"
+          href="#carouselExampleIndicators"
+          role="button"
+          data-slide="prev"
+        >
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="sr-only">Previous</span>
+        </a>
+        <a
+          class="carousel-control-next"
+          href="#carouselExampleIndicators"
+          role="button"
+          data-slide="next"
+        >
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="sr-only">Next</span>
+        </a>
+      </div>
+    </div>
+    <div id="poster"></div>
+    <div class="input-group mb-3">
+      <div class="input-group-prepend">
+        <label class="input-group-text" for="regionRoot">지역</label>
+      </div>
+      <select class="custom-select" id="regionRoot"></select>
+      <select class="custom-select" id="regionSub"></select>
+      <div class="input-group-prepend">
+        <label class="input-group-text" for="hour">시간</label>
+      </div>
+      <select class="custom-select" id="hour">
+        <option value="09">09:00~</option>
+        <option value="10">10:00~</option>
+        <option value="11">11:00~</option>
+        <option value="12">12:00~</option>
+        <option value="13">13:00~</option>
+        <option value="14">14:00~</option>
+        <option value="15">15:00~</option>
+      </select>
+      <div class="input-group-prepend">
+        <label class="input-group-text" for="top20movies">영화</label>
+      </div>
+      <select class="custom-select" id="top20movies"></select>
+      <button onclick="search()" type="button" class="btn btn-primary">
+        검색
+      </button>
+    </div>
+    <div id="movie_info"></div>
+    <div id="timetables">
+      <div id="cgv_tables"></div>
+      <div id="meta_tables"></div>
+      <div id="lotte_tables"></div>
+    </div>
+
     <!-- JS -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script
@@ -23,20 +146,23 @@
       integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
       crossorigin="anonymous"
     ></script>
-
-    <!-- 구글폰트 -->
-    <link
-      href="https://fonts.googleapis.com/css?family=Stylish&display=swap"
-      rel="stylesheet"
-    />
-
+    <script
+      src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+      integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+      crossorigin="anonymous"
+    ></script>
     <script>
       $(document).ready(function () {
         showRegionRoots();
         showRegionSubs();
+        showTop20Movies();
         $("select[id=regionRoot]").on("change", function () {
           showRegionSubs($(this).val());
         });
+      });
+
+      $(".carousel").carousel({
+        interval: 3500,
       });
 
       function showRegionRoots() {
@@ -79,26 +205,170 @@
         });
       }
 
-      function showValues() {
-        console.log(
-          $("select[id=regionRoot]").val(),
-          $("select[id=regionSub]").val()
-        );
+      function showTop20Movies() {
+        $("#top20movies").empty();
+        $("#poster").empty();
+        $.ajax({
+          type: "GET",
+          url: "/top20movies",
+          data: {},
+          success: function (response) {
+            let movies = response["movies"];
+
+            let item_html = "";
+            let j = 1;
+
+            for (let i = 0; i < movies.length; i++) {
+              let movie_code = movies[i]["code"];
+              let movie_title = movies[i]["title"];
+              let img_url = movies[i]["image_url"];
+              let ranking = movies[i]["ranking"];
+              let temp_html = `<option value="${movie_code}">${movie_title}</option>`;
+
+              item_html += `<div class="poster" style="width: 10rem;">
+                                  <h1 class="poster-no">${ranking}</h1>
+                                  <img class="card-img-top" src="${img_url}?type=m203_290_2" alt="Card image cap" />
+                                  <div class="poster-title">${movie_title}</div>
+                                </div>`;
+              if (i % 5 == 4) {
+                item_html = `<div class="row">${item_html}</div>`;
+                $(`#poster-pg${j}`).append(item_html);
+                j++;
+                item_html = "";
+              }
+              $("#top20movies").append(temp_html);
+            }
+          },
+        });
+      }
+
+      function search() {
+        let code = $("#top20movies").val();
+        showMovieDetail(code);
+        showTimetables();
+      }
+
+      function showMovieDetail(code) {
+        $("#movie_info").empty();
+        $.ajax({
+          type: "GET",
+          url: `/top20movies/${code}`,
+          data: {},
+          success: function (response) {
+            let movie = response["movie"];
+            let title = movie["title"];
+            let advance_rank = movie["ranking"];
+            let advance_rate = movie["advanced_rate"];
+            let img_url = movie["image_url"];
+
+            let details = movie["detail_info"];
+            let audience_point = details["audience_point"];
+            let critic_point = details["critic_point"];
+            let genre = details["genre"];
+            let nation = details["nation"];
+            let running_time = details["running_time"];
+            let open_date = details["open_date"];
+            let story = details["story"];
+
+            let temp_html = `<img class="rounded float-left" src="${img_url}?type=m203_290_2" alt="${title}" />
+                              <div class="card">
+                              <ul class="list-group list-group-flush">
+                                <li class="list-group-item">${title} <button type="button" class="btn btn-info btn-sm" disabled>${advance_rate}%</button><button type="button" class="btn btn-secondary btn-info btn-sm" disabled>예매율${advance_rank}위</button></li>
+                                <li class="list-group-item">관람객 평점: ${audience_point} | 평론가 평점: ${critic_point}</li>
+                                <li class="list-group-item">${genre} | ${nation} | ${running_time} | ${open_date} 개봉</li>
+                                <li>${story}</li>
+                              </ul>
+                              </div>`;
+            $("#movie_info").append(temp_html);
+          },
+        });
+      }
+
+      function showTimetables() {
+        $("#cgv_tables").empty();
+        $("#mega_tables").empty();
+        $("#lotte_tables").empty();
+
+        let region_root = $("#regionRoot").val();
+        let region_sub = $("#regionSub").val();
+        let code = $("#top20movies").val();
+        let hour = $("#hour").val();
+
+        $.ajax({
+          type: "GET",
+          url: "/timetables",
+          data: {
+            region_root: region_root,
+            region_sub: region_sub,
+            code: code,
+            hour: hour,
+          },
+          success: function (response) {
+            console.log(response);
+            cgv_tables = response["cgv_tables"];
+            mega_tables = response["mega_tables"];
+            lotte_tables = response["lotte_tables"];
+
+            let table_html = `<table class="table">
+                                <thead class="thead-dark">
+                                  <tr>
+                                    <th scope="col">극장</th>
+                                    <th scope="col">상영관</th>
+                                    <th scope="col">상영시간</th>
+                                    <th scope="col"></th>
+                                  </tr>
+                                </thead>
+                                <tbody>`;
+            let end_table_html = "</tbody></table>";
+            let cgv_html = "";
+            for (let i = 0; i < cgv_tables.length; i++) {
+              let theater = cgv_tables[i]["theater"];
+              let auditorium = cgv_tables[i]["auditorium"];
+              let show_time = cgv_tables[i]["show_time"];
+              let reserve_url = cgv_tables[i]["reservation_url"];
+              cgv_html += `<tr>
+                            <th scope="row">${theater}</th>
+                            <td>${auditorium}</td>
+                            <td>${show_time}</td>
+                            <td><a class="btn btn-primary" href="${reserve_url}" role="button">예매하기</a></td>
+                          </tr>`;
+            }
+            $("#cgv_tables").append(table_html + cgv_html + end_table_html);
+
+            let mega_html = "";
+            for (let i = 0; i < mega_tables.length; i++) {
+              let theater = mega_tables[i]["theater"];
+              let auditorium = mega_tables[i]["auditorium"];
+              let show_time = mega_tables[i]["show_time"];
+              let reserve_url = mega_tables[i]["reservation_url"];
+              mega_html += `<tr>
+                            <th scope="row">${theater}</th>
+                            <td>${auditorium}</td>
+                            <td>${show_time}</td>
+                            <td><a class="btn btn-primary" href="${reserve_url}" role="button">예매하기</a></td>
+                          </tr>`;
+            }
+            $("#mega_tables").append(table_html + mega_html + end_table_html);
+
+            let lotte_html = "";
+            for (let i = 0; i < lotte_tables.length; i++) {
+              let theater = lotte_tables[i]["theater"];
+              let auditorium = lotte_tables[i]["auditorium"];
+              let show_time = lotte_tables[i]["show_time"];
+              let reserve_url = lotte_tables[i]["reservation_url"];
+              lotte_html += `<tr>
+                            <th scope="row">${theater}</th>
+                            <td>${auditorium}</td>
+                            <td>${show_time}</td>
+                            <td><a class="btn btn-primary" href="${reserve_url}" role="button">예매하기</a></td>
+                          </tr>`;
+            }
+            $("#lotte_tables").append(
+              table_html + lotte_tables + end_table_html
+            );
+          },
+        });
       }
     </script>
-
-    <title>Document</title>
-  </head>
-  <body>
-    <div class="input-group mb-3">
-      <div class="input-group-prepend">
-        <label class="input-group-text" for="regionRoot">지역</label>
-      </div>
-      <select class="custom-select" id="regionRoot"></select>
-      <select class="custom-select" id="regionSub"></select>
-      <button onclick="showValues()" type="button" class="btn btn-primary">
-        확인
-      </button>
-    </div>
   </body>
 </html>
