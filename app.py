@@ -14,6 +14,11 @@ def home():
     return render_template("index.html")
 
 
+@app.route("/result", methods=["GET"])
+def search():
+    return render_template("result.html")
+
+
 # 지역정보전체를 가져오는 API
 @app.route("/regions", methods=["GET"])
 def get_all_reions():
@@ -41,28 +46,29 @@ def get_region(regionRootCode):
 @app.route("/top20movies", methods=["GET"])
 def get_all_top20movies():
     movies = list(
-        db.top20movies.find({}, {"detail_info": False, "_id": False}).sort(
-            "advance_rank", 1
-        )
+        db.top20movies.find({}, {"detail_info": False, "_id": False}).sort("ranking", 1)
     )
 
     return jsonify({"movies": movies})
 
 
 # 특정영화 가져오는 API
-@app.route("/top20movies/<code>", methods=["GET"])
-def get_movie(code):
-    movie = db.top20movies.find_one({"code": str(code)}, {"_id": False})
-    return jsonify({"movie": movie})
+# @app.route("/top20movies/<code>", methods=["GET"])
+# def get_movie(code):
+#     movie = db.top20movies.find_one({"code": str(code)}, {"_id": False})
+#     return jsonify({"movie": movie})
 
 
-# 특정영화 가져오는 API
-@app.route("/timetables", methods=["GET"])
+# 영화정보와 상영테이블 가져오는 API
+@app.route("/api/result", methods=["GET"])
 def get_timetable():
     region_root = request.args.get("region_root")
     region_sub = request.args.get("region_sub")
     code = request.args.get("code")
     hour = request.args.get("hour")
+
+    # 영화정보 가져오기
+    movie = db.top20movies.find_one({"code": str(code)}, {"_id": False})
 
     cgv_tables = []
     mega_tables = []
@@ -90,6 +96,7 @@ def get_timetable():
 
     return jsonify(
         {
+            "movie": movie,
             "cgv_tables": cgv_tables,
             "mega_tables": mega_tables,
             "lotte_tables": lotte_tables,
@@ -98,4 +105,4 @@ def get_timetable():
 
 
 if __name__ == "__main__":
-    app.run("0.0.0.0", port=5001, debug=True)
+    app.run("0.0.0.0", port=5000, debug=True)
