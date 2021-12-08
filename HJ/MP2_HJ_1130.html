@@ -21,12 +21,164 @@
 
     <meta charset="UTF-8">
     <title>한번에 몰아보자! 무비모아</title>
+    <script>
+        // 버튼 누른 후 들어가야 할 ajax calling 함수
+        // 들어가야 할 기능 : local storage 불러오기 --> 변수 선언! --> ajax해서 method get으로 지역구, 시간, 영화코드를 넘겨줌
+        // 그럼 그 정보를 가지고 python에서 불러와 줌
+        // 나는 그거를 append해서 html에 붙이면 끝!
+        $(document).ready(function () {
+             // ｄｒｏｐｄｏｗｎ　관련　ＡＰＩ　쓸 곳임!
+            let stsi = localStorage.getItem(storage-si);
+            let stgu = localStorage.getItem(storage-gu);
+            // 지역 코드 넘겨줘야 할듯
+            let sttime = localStorage.getItem(storage-time);
+            let stmovie = localStorage.getItem(storage-movie);
+            $.ajax({
+                type: 'GET',
+                url: '/api/result',
+                data: {
+                    "region_root": stsi,
+                    "region_sub": stgu,
+                    "hour": sttime,
+                    "code": stmovie,
+                },
+                success: function (response) {
+                    // 기존에 있던 정보 지우기
+                    $("#movie_infocard").empty();
+                    //우선 영화 정보부터 먼저 빼와서 append 하자~
+                    let movie_details = response['movie']
+                    let details_imgurl = movie_details['image_url'] //영화 포스터 url
+                    let details_yemeyul = movie_details['advanced_rate'] //예매율
+                    let details_rating = movie_details['ranking'] //순위
+                    let details_title = movie_details['title'] //영화제목
+                    let details_score1 = movie_details['detail_info']['audience_point']
+                    let details_score2 = movie_details['detail_info']['critic_point']
+                    let details_score3 = movie_details['detail_info']['netizen_point'] // 위부터 순서대로 관람객 평점, 기자 평론가 평점, 네티즌 평점
+                    let details_genre = movie_details['detail_info']['genre'] //장르
+                    let details_nation = movie_details['detail_info']['nation'] //국가
+                    let details_sctime = movie_details['detail_info']['running_time'] //상영시간
+                    let details_date = movie_details['detail_info']['open_date'] //개봉일자
+                    let details_story = movie_details['detail_info']['story'] //줄거리
+
+                    let temp_html1 = `<div class="hstack gap-0"> <!--영화 정보 append할 내용-->
+            <div class="movie-image"> <!--포스터 이미지 들어가는 자리-->
+                <img src="${details_imgurl}"
+                     class="img-thumbnail" alt="mo" id="movie-image">
+            </div>
+            <div class="card-body_desc1"> <!--세 칸 나눠저 있는데, 그중에서 두번째 칸. 예매율 등 입력 공간-->
+                <div class="empty-space02"></div> <!--글자 서로 띄어주기 용-->
+                <h4 class="card-yeme">예매율 <span class="badge bg-danger" id="yeme-percent">${details_yemeyul}</span> <span
+                        class="badge bg-danger" id="yeme-rate">${details_rating}위!</span></h4> <!--1위 강조용 badge-->
+                <div class="empty-space02"></div>
+                <h3 class="card-title" id="movie-title">${details_title}</h3>
+                <div class="empty-space02"></div>
+                <div class="hstack gap-3 score"> <!--3개 호리즌탈하게 넣어줌(평점 세 종류니까)-->
+                    <div>관람객 평점<span class="badge bg-info text-dark" id="score-view">${details_score1}</span></div>
+                    <!--평점 숫자 강조용 badge-->
+                    <div>기자 평론가 평점<span class="badge bg-info text-dark" id="score-report">${details_score2}</span></div>
+                    <div>네티즌 평점<span class="badge bg-info text-dark" id="score-net">${details_score3}</span></div>
+                </div>
+                <div class="empty-space03"></div><!--공간나눠주기-->
+                <div class="hstack gap-1 brief"> <!--영화 기타 정보 (액션/한국/상영시간 이런식으로)-->
+                    <div>
+                        <h6 id="movie-genre">${details_genre}</h6>
+                    </div>
+                    <div class="vr info-line"></div>
+                    <div>
+                        <h6 id="movie-nation">${details_nation}</h6>
+                    </div>
+                    <div class="vr info-line"></div>
+                    <div>
+                        <h6 id="movie-sctime">${details_sctime}</h6>
+                    </div>
+                    <div class="vr info-line"></div><!--라인 나눠주는 역할-->
+                    <div>
+                        <h6 id="movie-date">${details_date}</h6>
+                    </div>
+                </div>
+            </div>
+            <div class="vr"></div>
+            <div class="card-body_desc2"> <!--줄거리 넣는 칸-->
+                <h4 class="card-title story-title">줄거리</h4> <!--제목은 스크롤 되면 안되어서 따로 빼놨음-->
+                <div class="story"> <!--ㄹㅇ 줄거리가 들어가며, 칸 넘어가면 스크롤되는데 스크롤바는 난잡해보여서 없앴음-->
+                    <p class="card-text story-main" id="moive-story">${details_story}</p>
+                </div>
+            </div>
+
+        </div>`
+                    $('#movie_infocard').append(temp_html1)
+                    // 상영시간표 빼와서 append
+                    //cgv
+                    $("#cgv_running_table").empty();
+                    let cgv_running_table = response['cgv_tables']
+                    for (let i = 0; i < cgv_running_table.length; i++) {
+                        let cgv_theater = cgv_running_table[i]['theater']
+                        let cgv_place = cgv_running_table[i]['auditorium']
+                        let cgv_time = cgv_running_table[i]['show_time']
+                        let cgv_url = cgv_running_table[i]['reserve_url']
+                        let temp_html_cgv = `<tr class="table-rows"> <!--나중에 DB에서 가져와서 for문 돌릴 때 사용되는 form-->
+                <th scope="row" id="cgv-theater">${cgv_theater}</th>
+                <td id="cgv-thnum">${cgv_place}</td>
+                <td id="cgv-time">${cgv_time}</td>
+                <td>
+                    <button type="button" class="btn btn-outline-danger" src="${cgv_url}" id="cgv-yemebutton">예매하기</button>
+                    <!--예매하기 버튼-->
+                </td>
+            </tr>`
+                        $('#cgv_running_table').append(temp_html_cgv)
+                    }
+                    //mega
+                    $("#mega_running_table").empty();
+                    let mega_running_table = response['mega_tables']
+                    for (let i = 0; i < mega_running_table.length; i++) {
+                        let mega_theater = mega_running_table[i]['theater']
+                        let mega_place = mega_running_table[i]['auditorium']
+                        let mega_time = mega_running_table[i]['show_time']
+                        let mega_url = mega_running_table[i]['reserve_url']
+                        let temp_html_mega = `<tr class="table-rows"> <!--나중에 DB에서 가져와서 for문 돌릴 때 사용되는 form-->
+                <th scope="row" id="mega-theater">${mega_theater}</th>
+                <td id="mega-thnum">${mega_place}</td>
+                <td id="mega-time">${mega_time}</td>
+                <td>
+                    <button type="button" class="btn btn-outline-danger" src="${mega_url}" id="mega-yemebutton">예매하기</button>
+                    <!--예매하기 버튼-->
+                </td>
+            </tr>`
+                        $('#mega_running_table').append(temp_html_mega)
+                    }
+                    $("#lotte_running_table").empty();
+                    let lotte_running_table = response['lotte_tables']
+                    for (let i = 0; i < lotte_running_table.length; i++) {
+                        let lotte_theater = lotte_running_table[i]['theater']
+                        let lotte_place = lotte_running_table[i]['auditorium']
+                        let lotte_time = lotte_running_table[i]['show_time']
+                        let lotte_url = lotte_running_table[i]['reserve_url']
+                        let temp_html_lotte = `<tr class="table-rows"> <!--나중에 DB에서 가져와서 for문 돌릴 때 사용되는 form-->
+                <th scope="row" id="lotte-theater">${lotte_theater}</th>
+                <td id="lotte-thnum">${lotte_place}</td>
+                <td id="lotte-time">${lotte_time}</td>
+                <td>
+                    <button type="button" class="btn btn-outline-danger" src="${lotte_url}" id="lotte-yemebutton">예매하기</button>
+                    <!--예매하기 버튼-->
+                </td>
+            </tr>`
+                        $('#lotte_running_table').append(temp_html_lotte)
+                    }
+
+                }
+            });
+
+
+        });
+
+
+    </script>
 
 
 </head>
 <body>
 <div class="base-wrapper">
-    <div class="card mb-3 info-card"> <!--영화 정보 관련 카드-->
+    <div class="card mb-3 info-card" id="movie_infocard"> <!--영화 정보 관련 카드-->
 
         <div class="hstack gap-0">
             <div class="movie-image"> <!--포스터 이미지 들어가는 자리-->
@@ -64,9 +216,6 @@
                         <h6 id="movie-date">2021.11.24 개봉</h6>
                     </div>
                 </div>
-                <!--       이 주석은 무시하셔도 됨         <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional-->
-                <!--                    content. This content is a little bit longer.</p>-->
-                <!--                <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>-->
             </div>
             <div class="vr"></div>
             <div class="card-body_desc2"> <!--줄거리 넣는 칸-->
@@ -100,7 +249,7 @@
             CGV
         </div> <!--위에 영화사 알려주는 박스-->
         <table class="table table-striped table-hover table-setting">
-            <tbody>
+            <tbody id="cgv_running_table">
             <tr class="table-rows"> <!--나중에 DB에서 가져와서 for문 돌릴 때 사용되는 form-->
                 <th scope="row" id="cgv-theater">코엑스점</th>
                 <td id="cgv-thnum">3관</td>
@@ -119,7 +268,7 @@
             MEGABOX
         </div>
         <table class="table table-striped table-hover table-setting">
-            <tbody>
+            <tbody id="mega_running_table">
             <tr class="table-rows">
                 <th scope="row" id="mega-theater">코엑스점</th>
                 <td id="mega-thnum">3관</td>
@@ -137,7 +286,7 @@
             LOTTE CINEMA
         </div>
         <table class="table table-striped table-hover table-setting">
-            <tbody>
+            <tbody id="lotte_running_table">
             <tr class="table-rows">
                 <th scope="row">코엑스점</th>
                 <td>3관</td>
