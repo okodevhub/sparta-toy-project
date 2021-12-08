@@ -25,37 +25,36 @@ def get_top20_movies():
         "#content > div.article > div:nth-child(1) > div.lst_wrap > ul > li"
     )
 
-    rank = 1
-    top20_movies = []
     for movie in movies:
         # 영화코드
-        code = movie.select_one("dl > dt > a")["href"].split("=")[1]
+        code = movie.select_one("dl > dt > a")["href"].split("=")[-1]
         # 영화제목
         title = movie.select_one("dl > dt > a").text
         # 포스터URl
-        img_url = movie.select_one("div > a > img")["src"].split("?")[0]
+        image_url = movie.select_one("div > a > img")["src"].split("?")[0]
         # 예매율
-        advance_rate = float(
-            movie.select_one("dl > dd.star > dl.info_exp > dd > div > span.num").text
-        )
-        # 에매율 랭킹
-        advance_rank = rank
+        reservation = float(movie.select_one("dl > dd.star > dl.info_exp > dd > div > span.num").text)
 
         doc = {
-            "code": code,
-            "title": title,
-            "img_url": img_url,
-            "advance_rate": advance_rate,
-            "advance_rank": advance_rank,
+            'title': title,
+            'code': code,
+            'image': image_url,
+            'reservation': reservation
         }
+        current_movies.append(doc)
 
+    top20movies = sorted(current_movies, key=(lambda x: x['reservation']), reverse=True)[: 20]
+    top20_movies = []
+
+    for i in top20movies:
+        doc = {
+            'title': i['title'],
+            'code': i['code'],
+            'image_url': i['image'],
+            'advanced_rate': i['reservation'],
+            'ranking': top20movies.index(i) + 1
+        }
         top20_movies.append(doc)
-
-        rank += 1
-
-        if rank > 20:
-            break
-
     return top20_movies
 
 
