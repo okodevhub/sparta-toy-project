@@ -21,8 +21,17 @@
       href="https://fonts.googleapis.com/css?family=Stylish&display=swap"
       rel="stylesheet"
     />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100;300;400;500;700;900&family=Stylish&display=swap"
+      rel="stylesheet"
+    />
 
     <style>
+      * {
+        font-family: "Noto Sans KR", sans-serif;
+      }
       body {
         width: 80%;
         margin: 0 auto;
@@ -65,21 +74,12 @@
     <title>moviemoa - sample</title>
   </head>
   <body>
+    <h1 class="display-4 text-center">오늘의 영화</h1>
     <div
       id="carouselExampleIndicators"
       class="carousel slide"
       data-ride="carousel"
     >
-      <ol class="carousel-indicators">
-        <li
-          data-target="#carouselExampleIndicators"
-          data-slide-to="0"
-          class="active"
-        ></li>
-        <li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
-        <li data-target="#carouselExampleIndicators" data-slide-to="2"></li>
-        <li data-target="#carouselExampleIndicators" data-slide-to="3"></li>
-      </ol>
       <div class="carousel-inner" id="poster-inner">
         <div class="carousel-item active" id="poster-pg1"></div>
         <div class="carousel-item" id="poster-pg2"></div>
@@ -105,8 +105,7 @@
         </a>
       </div>
     </div>
-    <div id="poster"></div>
-    <div class="input-group mb-3">
+    <div class="input-group mb-3 mt-3">
       <div class="input-group-prepend">
         <label class="input-group-text" for="regionRoot">지역</label>
       </div>
@@ -122,7 +121,14 @@
         <option value="12">12:00~</option>
         <option value="13">13:00~</option>
         <option value="14">14:00~</option>
-        <option value="15">15:00~</option>
+        <option value="16">16:00~</option>
+        <option value="17">17:00~</option>
+        <option value="18">18:00~</option>
+        <option value="19">19:00~</option>
+        <option value="20">20:00~</option>
+        <option value="21">21:00~</option>
+        <option value="22">22:00~</option>
+        <option value="23">23:00~</option>
       </select>
       <div class="input-group-prepend">
         <label class="input-group-text" for="top20movies">영화</label>
@@ -133,10 +139,10 @@
       </button>
     </div>
     <div id="movie_info"></div>
-    <div id="timetables">
-      <div id="cgv_tables"></div>
-      <div id="meta_tables"></div>
-      <div id="lotte_tables"></div>
+    <div id="timetables" class="mt-3">
+      <div id="cgv_tables" class="col-4"></div>
+      <div id="mega_tables" class="col-4"></div>
+      <div id="lotte_tables" class="col-4"></div>
     </div>
 
     <!-- JS -->
@@ -244,17 +250,34 @@
 
       function search() {
         let code = $("#top20movies").val();
-        showMovieDetail(code);
+        // showMovieDetail(code);
         showTimetables();
       }
 
-      function showMovieDetail(code) {
+      function showTimetables() {
+        $("#cgv_tables").empty();
+        $("#mega_tables").empty();
+        $("#lotte_tables").empty();
         $("#movie_info").empty();
+
+        let region_root = $("#regionRoot").val();
+        let region_sub = $("#regionSub").val();
+        let code = $("#top20movies").val();
+        let hour = $("#hour").val();
+
         $.ajax({
           type: "GET",
-          url: `/top20movies/${code}`,
-          data: {},
+          url: "/api/result",
+          data: {
+            region_root: region_root,
+            region_sub: region_sub,
+            code: code,
+            hour: hour,
+          },
           success: function (response) {
+            console.log(response);
+
+            // 영화정보 가져오기
             let movie = response["movie"];
             let title = movie["title"];
             let advance_rank = movie["ranking"];
@@ -270,46 +293,23 @@
             let open_date = details["open_date"];
             let story = details["story"];
 
-            let temp_html = `<img class="rounded float-left" src="${img_url}?type=m203_290_2" alt="${title}" />
-                              <div class="card">
+            let temp_html = `<img class="rounded float-left col-2" src="${img_url}?type=m203_290_2" alt="${title}" />
+                              <div class="card col-10">
                               <ul class="list-group list-group-flush">
-                                <li class="list-group-item">${title} <button type="button" class="btn btn-info btn-sm" disabled>${advance_rate}%</button><button type="button" class="btn btn-secondary btn-info btn-sm" disabled>예매율${advance_rank}위</button></li>
+                                <li class="list-group-item">${title} <button type="button" class="btn btn-info btn-sm" disabled>${advance_rate}%</button><button type="button" class="btn btn-secondary btn-info btn-sm ml-1" disabled>예매율${advance_rank}위</button></li>
                                 <li class="list-group-item">관람객 평점: ${audience_point} | 평론가 평점: ${critic_point}</li>
                                 <li class="list-group-item">${genre} | ${nation} | ${running_time} | ${open_date} 개봉</li>
-                                <li>${story}</li>
+                                <li class="list-group-item">${story}</li>
                               </ul>
                               </div>`;
             $("#movie_info").append(temp_html);
-          },
-        });
-      }
 
-      function showTimetables() {
-        $("#cgv_tables").empty();
-        $("#mega_tables").empty();
-        $("#lotte_tables").empty();
+            // 상영시간표 가져오기
+            let cgv_tables = response["cgv_tables"];
+            let mega_tables = response["mega_tables"];
+            let lotte_tables = response["lotte_tables"];
 
-        let region_root = $("#regionRoot").val();
-        let region_sub = $("#regionSub").val();
-        let code = $("#top20movies").val();
-        let hour = $("#hour").val();
-
-        $.ajax({
-          type: "GET",
-          url: "/timetables",
-          data: {
-            region_root: region_root,
-            region_sub: region_sub,
-            code: code,
-            hour: hour,
-          },
-          success: function (response) {
-            console.log(response);
-            cgv_tables = response["cgv_tables"];
-            mega_tables = response["mega_tables"];
-            lotte_tables = response["lotte_tables"];
-
-            let table_html = `<table class="table">
+            let table_html = `<table class="table table-hover table-responsive">
                                 <thead class="thead-dark">
                                   <tr>
                                     <th scope="col">극장</th>
@@ -326,6 +326,7 @@
               let auditorium = cgv_tables[i]["auditorium"];
               let show_time = cgv_tables[i]["show_time"];
               let reserve_url = cgv_tables[i]["reservation_url"];
+
               cgv_html += `<tr>
                             <th scope="row">${theater}</th>
                             <td>${auditorium}</td>
@@ -341,6 +342,7 @@
               let auditorium = mega_tables[i]["auditorium"];
               let show_time = mega_tables[i]["show_time"];
               let reserve_url = mega_tables[i]["reservation_url"];
+
               mega_html += `<tr>
                             <th scope="row">${theater}</th>
                             <td>${auditorium}</td>
@@ -356,6 +358,7 @@
               let auditorium = lotte_tables[i]["auditorium"];
               let show_time = lotte_tables[i]["show_time"];
               let reserve_url = lotte_tables[i]["reservation_url"];
+
               lotte_html += `<tr>
                             <th scope="row">${theater}</th>
                             <td>${auditorium}</td>
@@ -363,9 +366,7 @@
                             <td><a class="btn btn-primary" href="${reserve_url}" role="button">예매하기</a></td>
                           </tr>`;
             }
-            $("#lotte_tables").append(
-              table_html + lotte_tables + end_table_html
-            );
+            $("#lotte_tables").append(table_html + lotte_html + end_table_html);
           },
         });
       }
