@@ -37,18 +37,64 @@ def get_region(regionRootCode):
     return jsonify({"region": region})
 
 
-@app.route("/test", methods=["GET"])
-def test_get():
-    title_receive = request.args.get("title_give")
-    print(title_receive)
-    return jsonify({"result": "success", "msg": "이 요청은 GET!"})
+# top20영화 가져오는 API
+@app.route("/top20movies", methods=["GET"])
+def get_all_top20movies():
+    movies = list(
+        db.top20movies.find({}, {"detail_info": False, "_id": False}).sort(
+            "advance_rank", 1
+        )
+    )
+
+    return jsonify({"movies": movies})
 
 
-@app.route("/test", methods=["POST"])
-def test_post():
-    title_receive = request.form["title_give"]
-    print(title_receive)
-    return jsonify({"result": "success", "msg": "이 요청은 POST!"})
+# 특정영화 가져오는 API
+@app.route("/top20movies/<code>", methods=["GET"])
+def get_movie(code):
+    movie = db.top20movies.find_one({"code": str(code)}, {"_id": False})
+    return jsonify({"movie": movie})
+
+
+# 특정영화 가져오는 API
+@app.route("/timetables", methods=["GET"])
+def get_timetable():
+    region_root = request.args.get("region_root")
+    region_sub = request.args.get("region_sub")
+    code = request.args.get("code")
+    hour = request.args.get("hour")
+
+    cgv_tables = []
+    mega_tables = []
+    lotte_tables = []
+
+    timetables = list(
+        db.running_time_table.find(
+            {
+                "code": str(code),
+                "regionRootCode": str(region_root),
+                "regionSubCode": str(region_sub),
+            },
+            {"_id": False},
+        ).sort("show_time", 1)
+    )
+
+    for timetable in timetables:
+        if timetable["show_time"].split(":")[0] >= hour:
+            if timetable["brand"] in ("CGV"):
+                cgv_tables.append(timetable)
+            elif timetable["brand"] in ("메가박스"):
+                mega_tables.append(timetable)
+            elif timetable["brand"] in ("롯데시네마"):
+                lotte_tables.append(timetable)
+
+    return jsonify(
+        {
+            "cgv_tables": cgv_tables,
+            "mega_tables": mega_tables,
+            "lotte_tables": lotte_tables,
+        }
+    )
 
 
 if __name__ == "__main__":
