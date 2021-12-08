@@ -10,8 +10,8 @@ headers = {
 }
 
 # Chrome Driver 위치 (AWS로 옮길 경우 수정 필요)
-chrome_driver_dir = "/opt/homebrew/bin/chromedriver"
-# chrome_driver_dir = "/home/ubuntu/chromedriver"
+# chrome_driver_dir = "/opt/homebrew/bin/chromedriver"
+chrome_driver_dir = "/home/ubuntu/chromedriver"
 
 # 현재상영영화중 예매율20위 영화 가져오기
 def get_top20_movies():
