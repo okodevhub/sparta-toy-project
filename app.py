@@ -19,6 +19,11 @@ def search():
     return render_template("result.html")
 
 
+@app.route("/test", methods=["GET"])
+def search():
+    return render_template("test.html")
+
+
 # 지역정보전체를 가져오는 API
 @app.route("/regions", methods=["GET"])
 def get_all_reions():
