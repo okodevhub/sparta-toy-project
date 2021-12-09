@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3"
+      crossorigin="anonymous"
+    />
+    <link
+      href="{{ url_for('static', filename='css/style.css') }}"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <!--스타일 불러오기-->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+      integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+      integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+      crossorigin="anonymous"
+    ></script>
+
+    <meta charset="UTF-8" />
+    <title>한번에 몰아보자! 무비모아</title>
+
+    <script>
+      $(document).ready(function () {
+        // localStorage에 있는 값 불러오기
+        let stsi = localStorage.getItem("region_root");
+        let stgu = localStorage.getItem("region_sub");
+        let sttime = localStorage.getItem("hour");
+        let stmovie = localStorage.getItem("code");
+
+        showRegionRoots();
+        showRegionSubs(stsi);
+        Movieselect();
+        $("select[id=regionRoot]").on("change", function () {
+          showRegionSubs($(this).val());
+        });
+
+        // $("#regionRoot").val(stsi).prop("selected", true); //dropdown 값 변경
+        // $("#regionSub").val(stgu).prop("selected", true);
+        $("#inputGroupSelect01").val(sttime).prop("selected", true);
+        // $("#movie-select-box").val(stmovie).prop("selected", true);
+
+        $.ajax({
+          type: "GET",
+          url: "/api/result",
+          data: {
+            region_root: stsi,
+            region_sub: stgu,
+            hour: sttime,
+            code: stmovie,
+          },
+          success: function (response) {
+            // 기존에 있던 정보 지우기
+            $("#movie_infocard").empty();
+            //우선 영화 정보부터 먼저 빼와서 append 하자~
+            let movie_details = response["movie"];
+            let details_imgurl = movie_details["image_url"]; //영화 포스터 url
+            let details_yemeyul = movie_details["advanced_rate"]; //예매율
+            let details_rating = movie_details["ranking"]; //순위
+            let details_title = movie_details["title"]; //영화제목
+            let details_score1 = movie_details["detail_info"]["audience_point"];
+            let details_score2 = movie_details["detail_info"]["critic_point"];
+            let details_score3 = movie_details["detail_info"]["netizen_point"]; // 위부터 순서대로 관람객 평점, 기자 평론가 평점, 네티즌 평점
+            let details_genre = movie_details["detail_info"]["genre"]; //장르
+            let details_nation = movie_details["detail_info"]["nation"]; //국가
+            let details_sctime = movie_details["detail_info"]["running_time"]; //상영시간
+            let details_date = movie_details["detail_info"]["open_date"]; //개봉일자
+            let details_story = movie_details["detail_info"]["story"]; //줄거리
+
+            let temp_html1 = `<div class="hstack gap-0"> <!--영화 정보 append할 내용-->
+            <div class="movie-image"> <!--포스터 이미지 들어가는 자리-->
+                <img src="${details_imgurl}"
+                     class="img-thumbnail" alt="mo" id="movie-image">
+            </div>
+            <div class="card-body_desc1"> <!--세 칸 나눠저 있는데, 그중에서 두번째 칸. 예매율 등 입력 공간-->
+                <div class="empty-space02"></div> <!--글자 서로 띄어주기 용-->
+                <h4 class="card-yeme">예매율 <span class="badge bg-danger" id="yeme-percent">${details_yemeyul}%</span>
+                    <span class="badge bg-danger" id="yeme-rate">${details_rating}위!</span></h4> <!--1위 강조용 badge-->
+                <div class="empty-space02"></div>
+                <h3 class="card-title" id="movie-title">${details_title}</h3>
+                <div class="empty-space02"></div>
+                <div class="hstack gap-3 score"> <!--3개 호리즌탈하게 넣어줌(평점 세 종류니까)-->
+                    <div>관람객 평점<span class="badge bg-info text-dark" id="score-view">${details_score1}</span></div>
+                    <!--평점 숫자 강조용 badge-->
+                    <div>기자 평론가 평점<span class="badge bg-info text-dark" id="score-report">${details_score2}</span></div>
+                    <div>네티즌 평점<span class="badge bg-info text-dark" id="score-net">${details_score3}</span></div>
+                </div>
+                <div class="empty-space03"></div><!--공간나눠주기-->
+                <div class="hstack gap-1 brief"> <!--영화 기타 정보 (액션/한국/상영시간 이런식으로)-->
+                    <div>
+                        <h6 id="movie-genre">${details_genre}</h6>
+                    </div>
+                    <div class="vr info-line"></div>
+                    <div>
+                        <h6 id="movie-nation">${details_nation}</h6>
+                    </div>
+                    <div class="vr info-line"></div>
+                    <div>
+                        <h6 id="movie-sctime">${details_sctime}</h6>
+                    </div>
+                    <div class="vr info-line"></div><!--라인 나눠주는 역할-->
+                    <div>
+                        <h6 id="movie-date">${details_date}</h6>
+                    </div>
+                </div>
+            </div>
+            <div class="vr"></div>
+            <div class="card-body_desc2"> <!--줄거리 넣는 칸-->
+                <h4 class="card-title story-title">줄거리</h4> <!--제목은 스크롤 되면 안되어서 따로 빼놨음-->
+                <div class="story"> <!--ㄹㅇ 줄거리가 들어가며, 칸 넘어가면 스크롤되는데 스크롤바는 난잡해보여서 없앴음-->
+                    <p class="card-text story-main" id="moive-story">${details_story}</p>
+                </div>
+            </div>
+
+        </div>`;
+            $("#movie_infocard").append(temp_html1);
+            // 상영시간표 빼와서 append
+            //cgv
+            $("#cgv_running_table").empty();
+            let cgv_running_table = response["cgv_tables"];
+            for (let i = 0; i < cgv_running_table.length; i++) {
+              let cgv_theater = cgv_running_table[i]["theater"];
+              let cgv_place = cgv_running_table[i]["auditorium"];
+              let cgv_time = cgv_running_table[i]["show_time"];
+              let cgv_url = cgv_running_table[i]["reserve_url"];
+              let temp_html_cgv = `<tr class="table-rows"> <!--나중에 DB에서 가져와서 for문 돌릴 때 사용되는 form-->
+                <th scope="row" class="cgv-theater">${cgv_theater}</th>
+                <td class="cgv-thnum">${cgv_place}</td>
+                <td class="cgv-time">${cgv_time}</td>
+                <td>
+                    <button type="button" class="btn btn-outline-danger" src="${cgv_url}" id="cgv-yemebutton">예매하기</button>
+                    <!--예매하기 버튼-->
+                </td>
+            </tr>`;
+              $("#cgv_running_table").append(temp_html_cgv);
+            }
+            //mega
+            $("#mega_running_table").empty();
+            let mega_running_table = response["mega_tables"];
+            for (let i = 0; i < mega_running_table.length; i++) {
+              let mega_theater = mega_running_table[i]["theater"];
+              let mega_place = mega_running_table[i]["auditorium"];
+              let mega_time = mega_running_table[i]["show_time"];
+              let mega_url = mega_running_table[i]["reserve_url"];
+              let temp_html_mega = `<tr class="table-rows"> <!--나중에 DB에서 가져와서 for문 돌릴 때 사용되는 form-->
+                <th scope="row" class="mega-theater">${mega_theater}</th>
+                <td class="mega-thnum">${mega_place}</td>
+                <td class="mega-time">${mega_time}</td>
+                <td>
+                    <button type="button" class="btn btn-outline-danger" src="${mega_url}" id="mega-yemebutton">예매하기</button>
+                    <!--예매하기 버튼-->
+                </td>
+            </tr>`;
+              $("#mega_running_table").append(temp_html_mega);
+            }
+            $("#lotte_running_table").empty();
+            let lotte_running_table = response["lotte_tables"];
+            for (let i = 0; i < lotte_running_table.length; i++) {
+              let lotte_theater = lotte_running_table[i]["theater"];
+              let lotte_place = lotte_running_table[i]["auditorium"];
+              let lotte_time = lotte_running_table[i]["show_time"];
+              let lotte_url = lotte_running_table[i]["reserve_url"];
+              let temp_html_lotte = `<tr class="table-rows"> <!--나중에 DB에서 가져와서 for문 돌릴 때 사용되는 form-->
+                <th scope="row" class="lotte-theater">${lotte_theater}</th>
+                <td class="lotte-thnum">${lotte_place}</td>
+                <td class="lotte-time">${lotte_time}</td>
+                <td>
+                    <button type="button" class="btn btn-outline-danger" src="${lotte_url}" id="lotte-yemebutton">예매하기</button>
+                    <!--예매하기 버튼-->
+                </td>
+            </tr>`;
+              $("#lotte_running_table").append(temp_html_lotte);
+            }
+          },
+        });
+      });
+
+      function showRegionRoots() {
+        $.ajax({
+          type: "GET",
+          url: "/regions",
+          data: {},
+          success: function (response) {
+            let regions = response["regions"];
+            let stsi = localStorage.getItem("region_root");
+            for (let i = 0; i < regions.length; i++) {
+              let regionRootCode = regions[i]["regionRootCode"];
+              let regionRootName = regions[i]["regionRootName"];
+              let temp_html = "";
+              if (regionRootCode == stsi) {
+                temp_html = `<option value="${regionRootCode}" selected>${regionRootName}</option>`;
+              } else {
+                temp_html = `<option value="${regionRootCode}">${regionRootName}</option>`;
+              }
+              $("#regionRoot").append(temp_html);
+            }
+          },
+        });
+      }
+
+      function showRegionSubs(regionRootCode) {
+        $("#regionSub").empty();
+        if (!regionRootCode) {
+          regionRootCode = 1;
+        }
+        $.ajax({
+          type: "GET",
+          url: `/regions/${regionRootCode}`,
+          data: {},
+          success: function (response) {
+            let region = response["region"];
+            let regionSubs = region["regionSubs"];
+            let stgu = localStorage.getItem("region_sub");
+
+            for (let i = 0; i < regionSubs.length; i++) {
+              let regionSubCode = regionSubs[i]["regionSubCode"];
+              let regionSubName = regionSubs[i]["regionSubName"];
+              let temp_html = "";
+              if (regionSubCode == stgu) {
+                temp_html = `<option value="${regionSubCode}" selected>${regionSubName}</option>`;
+              } else {
+                temp_html = `<option value="${regionSubCode}">${regionSubName}</option>`;
+              }
+              $("#regionSub").append(temp_html);
+            }
+          },
+        });
+      }
+
+      <!--     영화 고르기-->
+      function Movieselect() {
+        // 탑20 무비 데이터 받아오기
+        $.ajax({
+          type: "GET",
+          url: "/top20movies",
+          data: {},
+          success: function (response) {
+            let movies = response["movies"];
+            let stmovie = localStorage.getItem("code");
+            for (let i = 0; i < movies.length; i++) {
+              let code = movies[i]["code"];
+              let title = movies[i]["title"];
+              let temp_html = `<option value="${code}">${title}</option>`;
+              if (code == stmovie) {
+                temp_html = `<option value="${code}" selected>${title}</option>`;
+              } else {
+                temp_html = `<option value="${code}">${title}</option>`;
+              }
+
+              $("#movie-select-box").append(temp_html);
+            }
+          },
+        });
+      }
+
+      function search_button() {
+        let region_root = $("#regionRoot").val();
+        let region_sub = $("#regionSub").val();
+        let hour = $("#inputGroupSelect01").val();
+        let code = $("#movie-select-box").val();
+
+        localStorage.setItem("region_root", region_root);
+        localStorage.setItem("region_sub", region_sub);
+        localStorage.setItem("hour", hour);
+        localStorage.setItem("code", code);
+        location.replace("/result");
+      }
+    </script>
+  </head>
+  <body>
+    <!--    YS body-->
+    <img
+      src="{{ url_for('static', filename='img/title.jpg') }}"
+      width="500px"
+      class="img"
+    />
+    <div class="dropdowns_box wrap">
+      <div class="input-group box_size2">
+        <div class="input-group-prepend">
+          <label class="input-group-text" for="regionRoot">PLACE</label>
+        </div>
+        <select class="custom-select box_size_1" id="regionRoot"></select>
+        <select class="custom-select box_size_1" id="regionSub"></select>
+      </div>
+      <!--도시에 따른 구 자동 선택-->
+
+      <div class="input-group box_size2">
+        <div class="input-group-prepend">
+          <label class="input-group-text" for="inputGroupSelect01">TIME</label>
+        </div>
+        <select class="custom-select box_size_2" id="inputGroupSelect01">
+          <option values="00" style="text-align: center">
+            시간을 선택하세요
+          </option>
+          <option value="09">09:00 -</option>
+          <option value="10">10:00 -</option>
+          <option value="11">11:00 -</option>
+          <option value="12">12:00 -</option>
+          <option value="13">13:00 -</option>
+          <option value="14">14:00 -</option>
+          <option value="15">15:00 -</option>
+          <option value="16">16:00 -</option>
+          <option value="17">17:00 -</option>
+          <option value="18">18:00 -</option>
+          <option value="19">19:00 -</option>
+          <option value="20">20:00 -</option>
+          <option value="21">21:00 -</option>
+          <option value="22">22:00 -</option>
+          <option value="23">23:00 -</option>
+        </select>
+      </div>
+      <!-- TIME: □시 이후를 고르는 셀렉트박스 -->
+
+      <div class="input-group movie-box box_size2">
+        <div class="input-group-prepend">
+          <label class="input-group-text" for="movie-select-box">MOVIE</label>
+        </div>
+        <select class="custom-select box_size3" id="movie-select-box">
+          <option value="00" style="text-align: center">
+            영화를 선택하세요
+          </option>
+        </select>
+      </div>
+      <!-- MOVIE를 고르 셀렉트박스 -->
+      <button
+        type="button"
+        onclick="search_button()"
+        class="btn btn-outline-success"
+      >
+        SEARCH
+      </button>
+      <!-- 서치 버튼 -->
+    </div>
+    <!--    YS body-->
+
+    <div class="base-wrapper">
+      <div class="card mb-3 info-card">
+        <!--영화 정보 관련 카드-->
+        <div id="movie_infocard"></div>
+      </div>
+    </div>
+    <div id="timetables" class="hstack gap-0 table-space" style="width: 1000px">
+      <!--상영시간표 3개 묶는 div-->
+      <div class="table-size">
+        <div class="company-name_CGV">CGV</div>
+        <!--위에 영화사 알려주는 박스-->
+        <table class="table table-striped table-hover table-setting">
+          <tbody id="cgv_running_table">
+            <tr class="table-rows">
+              <!--나중에 DB에서 가져와서 for문 돌릴 때 사용되는 form-->
+              <th scope="row" id="cgv-theater">코엑스점</th>
+              <td id="cgv-thnum">3관</td>
+              <td id="cgv-time">14:20</td>
+              <td>
+                <button
+                  type="button"
+                  class="btn btn-outline-danger"
+                  src="#"
+                  id="cgv-yemebutton"
+                >
+                  예매하기
+                </button>
+                <!--예매하기 버튼-->
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <!--CGV-->
+      <div class="empty-space01"></div>
+      <div class="table-size">
+        <div class="company-name_Mega">MEGABOX</div>
+        <table class="table table-striped table-hover table-setting">
+          <tbody id="mega_running_table">
+            <tr class="table-rows">
+              <th scope="row" id="mega-theater">코엑스점</th>
+              <td id="mega-thnum">3관</td>
+              <td id="mega-time">14:20</td>
+              <td>
+                <button
+                  type="button"
+                  class="btn btn-outline-danger"
+                  src="#"
+                  id="mega-yemebutton"
+                >
+                  예매하기
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <!--Mega-->
+      <div class="empty-space01"></div>
+      <div class="table-size">
+        <div class="company-name_Lotte">LOTTE CINEMA</div>
+        <table class="table table-striped table-hover table-setting">
+          <tbody id="mega_running_table">
+            <tr class="table-rows">
+              <th scope="row">코엑스점</th>
+              <td>3관</td>
+              <td>14:20</td>
+              <td>
+                <button type="button" class="btn btn-outline-danger">
+                  예매하기
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <!--Lotte-->
+    </div>
+  </body>
+</html>
