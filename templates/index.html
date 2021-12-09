@@ -16,23 +16,292 @@
       crossorigin="anonymous"
     />
 
-    <!-- JS -->
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script
       src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
       integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
       crossorigin="anonymous"
     ></script>
+    <script
+      src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+      integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+      crossorigin="anonymous"
+    ></script>
 
-    <!-- 구글폰트 -->
-    <link
-      href="https://fonts.googleapis.com/css?family=Stylish&display=swap"
-      rel="stylesheet"
-    />
+    <title>한번에 몰아보자! 무비모아</title>
 
-    <title>Document</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap");
+
+      * {
+        font-family: "Gowun Dodum", sans-serif;
+      }
+
+      .img {
+        /* MOVIEMOA 로고 */
+        display: block;
+        margin: 25px auto; /* PLACE,TIME,MOVIE 셀렉트박스*/
+      }
+
+      .place_select {
+        width: 700px;
+        margin: auto;
+        /* text-align-last: right; 이걸 사용하면 텍스트를 오른쪽으로 정렬할 수 있음 */
+      }
+
+      .btn {
+        display: block;
+        margin: 50px auto 50px auto;
+        width: 130px;
+        height: 50px;
+        font-size: 20px;
+        font-weight: bold;
+        border-radius: 40px;
+      }
+
+      .input-group {
+        width: 700px;
+        margin: auto;
+      }
+
+      #poster {
+        display: flex;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        gap: 10px;
+      }
+
+      #movie_info {
+        display: flex;
+      }
+
+      #carouselExampleSlidesOnly {
+        height: 45vh;
+      }
+
+      .carousel-item {
+        background-color: rgba(0, 0, 0, 0.9);
+        padding: 10px;
+      }
+
+      .carousel-item .row {
+        display: flex;
+        justify-content: space-around;
+        height: 100%;
+        width: 85%;
+        margin: 0 auto;
+        color: white;
+      }
+      .poster-no,
+      .poster-title {
+        display: flex;
+        justify-content: center;
+      }
+      .poster-title {
+        white-space: nowrap;
+      }
+    </style>
   </head>
   <body>
-    <h1>서버를 만들었다!</h1>
+    <div>
+      <!-- 무비모아 로고 jpg 삽입 -->
+      <img
+        src="{{ url_for('static', filename='img/title.jpg') }}"
+        width="750px"
+        class="img"
+      />
+
+      <!-- 포스터 -->
+      <div
+        id="carouselExampleIndicators"
+        class="carousel slide mb-5"
+        data-ride="carousel"
+      >
+        <div class="carousel-inner" id="poster-inner">
+          <div class="carousel-item active" id="poster-pg1"></div>
+          <div class="carousel-item" id="poster-pg2"></div>
+          <div class="carousel-item" id="poster-pg3"></div>
+          <div class="carousel-item" id="poster-pg4"></div>
+          <a
+            class="carousel-control-prev"
+            href="#carouselExampleIndicators"
+            role="button"
+            data-slide="prev"
+          >
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="sr-only">Previous</span>
+          </a>
+          <a
+            class="carousel-control-next"
+            href="#carouselExampleIndicators"
+            role="button"
+            data-slide="next"
+          >
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="sr-only">Next</span>
+          </a>
+        </div>
+      </div>
+
+      <!--도시에 따른 구 자동 선택-->
+      <div class="input-group mb-3">
+        <div class="input-group-prepend">
+          <label class="input-group-text" for="regionRoot">PLACE</label>
+        </div>
+        <select class="custom-select" id="regionRoot"></select>
+        <select class="custom-select" id="regionSub"></select>
+      </div>
+
+      <!-- TIME: □시 이후를 고르는 셀렉트박스 -->
+      <div class="input-group mb-3">
+        <div class="input-group-prepend">
+          <label class="input-group-text" for="inputGroupSelect01">TIME</label>
+        </div>
+        <select class="custom-select" id="inputGroupSelect01">
+          <option value="00" selected>시간을 선택하세요</option>
+          <option value="09">09:00 -</option>
+          <option value="10">10:00 -</option>
+          <option value="11">11:00 -</option>
+          <option value="12">12:00 -</option>
+          <option value="13">13:00 -</option>
+          <option value="14">14:00 -</option>
+          <option value="15">15:00 -</option>
+          <option value="16">16:00 -</option>
+          <option value="17">17:00 -</option>
+          <option value="18">18:00 -</option>
+          <option value="19">19:00 -</option>
+          <option value="20">20:00 -</option>
+          <option value="21">21:00 -</option>
+          <option value="22">22:00 -</option>
+          <option value="23">23:00 -</option>
+        </select>
+      </div>
+
+      <!-- MOVIE를 고르 셀렉트박스 -->
+      <div class="input-group mb-3">
+        <div class="input-group-prepend">
+          <label class="input-group-text" for="inputGroupSelect01">MOVIE</label>
+        </div>
+        <select class="custom-select" id="movie-select-box">
+          <option value="00" selected>영화를 선택하세요</option>
+        </select>
+      </div>
+
+      <!-- 서치 버튼 -->
+      <button
+        type="button"
+        onclick="search_button()"
+        class="btn btn-outline-success"
+      >
+        SEARCH
+      </button>
+    </div>
+
+    <script>
+      $(document).ready(function () {
+        showRegionRoots();
+        showRegionSubs();
+        Movieselect();
+        $("select[id=regionRoot]").on("change", function () {
+          showRegionSubs($(this).val());
+        });
+      });
+
+      $(".carousel").carousel({
+        interval: 3500,
+      });
+
+      function showRegionRoots() {
+        $.ajax({
+          type: "GET",
+          url: "/regions",
+          data: {},
+          success: function (response) {
+            let regions = response["regions"];
+            for (let i = 0; i < regions.length; i++) {
+              let regionRootCode = regions[i]["regionRootCode"];
+              let regionRootName = regions[i]["regionRootName"];
+              let temp_html = `<option value="${regionRootCode}">${regionRootName}</option>`;
+              $("#regionRoot").append(temp_html);
+            }
+          },
+        });
+      }
+
+      function showRegionSubs(regionRootCode) {
+        $("#regionSub").empty();
+        if (!regionRootCode) {
+          regionRootCode = 1;
+        }
+        $.ajax({
+          type: "GET",
+          url: `/regions/${regionRootCode}`,
+          data: {},
+          success: function (response) {
+            let region = response["region"];
+            let regionSubs = region["regionSubs"];
+
+            for (let i = 0; i < regionSubs.length; i++) {
+              let regionSubCode = regionSubs[i]["regionSubCode"];
+              let regionSubName = regionSubs[i]["regionSubName"];
+              let temp_html = `<option value="${regionSubCode}">${regionSubName}</option>`;
+              $("#regionSub").append(temp_html);
+            }
+          },
+        });
+      }
+
+      // 영화 고르기
+      function Movieselect() {
+        // 탑20 무비 데이터 받아오기
+        $.ajax({
+          type: "GET",
+          url: "/top20movies",
+          data: {},
+          success: function (response) {
+            let movies = response["movies"];
+            let item_html = "";
+            let j = 1;
+
+            for (let i = 0; i < movies.length; i++) {
+              let code = movies[i]["code"];
+              let title = movies[i]["title"];
+              let img_url = movies[i]["image_url"];
+              let ranking = movies[i]["ranking"];
+
+              item_html += `<div class="poster" style="width: 10rem;">
+                                  <h1 class="poster-no">${ranking}</h1>
+                                  <img class="card-img-top mb-1" src="${img_url}?type=m203_290_2" alt="Card image cap" />
+                                  <div class="poster-title">${title}</div>
+                                </div>`;
+              if (i % 5 == 4) {
+                item_html = `<div class="row">${item_html}</div>`;
+                $(`#poster-pg${j}`).append(item_html);
+                j++;
+                item_html = "";
+              }
+
+              let temp_html = `<option value="${code}">${title}</option>`;
+              $("#movie-select-box").append(temp_html);
+            }
+          },
+        });
+      }
+
+      function search_button() {
+        let region_root = $("#regionRoot").val();
+        let region_sub = $("#regionSub").val();
+        let hour = $("#inputGroupSelect01").val();
+        let code = $("#movie-select-box").val();
+
+        localStorage.setItem("region_root", region_root);
+        localStorage.setItem("region_sub", region_sub);
+        localStorage.setItem("hour", hour);
+        localStorage.setItem("code", code);
+        location.href = "/result";
+      }
+    </script>
   </body>
 </html>
