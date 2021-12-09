@@ -20,7 +20,7 @@ def search():
 
 
 @app.route("/test", methods=["GET"])
-def search():
+def test():
     return render_template("test.html")
 
 
