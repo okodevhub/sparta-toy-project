@@ -35,9 +35,7 @@ def get_top20_movies():
         # 포스터URl
         image_url = movie.select_one("div > a > img")["src"].split("?")[0]
         # 예매율
-        reservation = float(
-            movie.select_one("dl > dd.star > dl.info_exp > dd > div > span.num").text
-        )
+        reservation = float(movie.select_one("div.star_t1 > span.num").text)
 
         doc = {
             "title": title,

@@ -147,13 +147,13 @@
               let cgv_theater = cgv_running_table[i]["theater"];
               let cgv_place = cgv_running_table[i]["auditorium"];
               let cgv_time = cgv_running_table[i]["show_time"];
-              let cgv_url = cgv_running_table[i]["reserve_url"];
+              let cgv_url = cgv_running_table[i]["reservation_url"];
               let temp_html_cgv = `<tr class="table-rows"> <!--나중에 DB에서 가져와서 for문 돌릴 때 사용되는 form-->
                 <th scope="row" class="cgv-theater">${cgv_theater}</th>
                 <td class="cgv-thnum">${cgv_place}</td>
                 <td class="cgv-time">${cgv_time}</td>
                 <td>
-                    <button type="button" class="btn btn-outline-danger" src="${cgv_url}" id="cgv-yemebutton">예매하기</button>
+                    <a class="btn btn-outline-danger" href="${cgv_url}" id="cgv-yemebutton" target='_blank'>예매하기</button>
                     <!--예매하기 버튼-->
                 </td>
             </tr>`;
@@ -166,13 +166,13 @@
               let mega_theater = mega_running_table[i]["theater"];
               let mega_place = mega_running_table[i]["auditorium"];
               let mega_time = mega_running_table[i]["show_time"];
-              let mega_url = mega_running_table[i]["reserve_url"];
+              let mega_url = mega_running_table[i]["reservation_url"];
               let temp_html_mega = `<tr class="table-rows"> <!--나중에 DB에서 가져와서 for문 돌릴 때 사용되는 form-->
                 <th scope="row" class="mega-theater">${mega_theater}</th>
                 <td class="mega-thnum">${mega_place}</td>
                 <td class="mega-time">${mega_time}</td>
                 <td>
-                    <button type="button" class="btn btn-outline-danger" src="${mega_url}" id="mega-yemebutton">예매하기</button>
+                    <a class="btn btn-outline-danger" href="${mega_url}" id="mega-yemebutton" target='_blank'>예매하기</button>
                     <!--예매하기 버튼-->
                 </td>
             </tr>`;
@@ -184,13 +184,13 @@
               let lotte_theater = lotte_running_table[i]["theater"];
               let lotte_place = lotte_running_table[i]["auditorium"];
               let lotte_time = lotte_running_table[i]["show_time"];
-              let lotte_url = lotte_running_table[i]["reserve_url"];
+              let lotte_url = lotte_running_table[i]["reservation_url"];
               let temp_html_lotte = `<tr class="table-rows"> <!--나중에 DB에서 가져와서 for문 돌릴 때 사용되는 form-->
                 <th scope="row" class="lotte-theater">${lotte_theater}</th>
                 <td class="lotte-thnum">${lotte_place}</td>
                 <td class="lotte-time">${lotte_time}</td>
                 <td>
-                    <button type="button" class="btn btn-outline-danger" src="${lotte_url}" id="lotte-yemebutton">예매하기</button>
+                    <a class="btn btn-outline-danger" href="${lotte_url}" id="lotte-yemebutton" target='_blank'>예매하기</button>
                     <!--예매하기 버튼-->
                 </td>
             </tr>`;
